@@ -1,0 +1,163 @@
+/* MANAGE SESSIONS TAB STYLING */
+.manage-form {
+  max-width: 600px;
+  width: 100%;
+}
+
+/* Session Management Modal */
+.session-modal {
+  margin-top: 24px;
+  max-width: 600px;
+  width: 100%;
+}
+
+.modal-content {
+  background: rgba(44, 47, 51, 0.95);
+  border: 1px solid rgba(114, 137, 218, 0.4);
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.modal-header h3 {
+  color: #E6E6E6;
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.session-status-badge {
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.session-status-badge.active {
+  background: rgba(67, 181, 129, 0.2);
+  color: #43b581;
+  border: 1px solid rgba(67, 181, 129, 0.4);
+}
+
+.session-status-badge.archived {
+  background: rgba(250, 166, 26, 0.2);
+  color: #faa61a;
+  border: 1px solid rgba(250, 166, 26, 0.4);
+}
+
+.modal-body {
+  margin-bottom: 20px;
+}
+
+.session-details {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.detail-label {
+  color: rgba(230, 230, 230, 0.8);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.detail-value {
+  color: #E6E6E6;
+  font-size: 14px;
+  font-weight: 400;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.action-btn {
+  flex: 1;
+  padding: 12px 16px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.archive-btn {
+  background: rgba(250, 166, 26, 0.2);
+  color: #faa61a;
+  border: 1px solid rgba(250, 166, 26, 0.4);
+}
+
+.archive-btn:hover:not(:disabled) {
+  background: rgba(250, 166, 26, 0.3);
+  transform: translateY(-1px);
+}
+
+.archive-btn:disabled {
+  background: rgba(250, 166, 26, 0.1);
+  color: rgba(250, 166, 26, 0.5);
+  cursor: not-allowed;
+  border-color: rgba(250, 166, 26, 0.2);
+}
+
+.delete-btn {
+  background: rgba(237, 66, 69, 0.2);
+  color: #ed4245;
+  border: 1px solid rgba(237, 66, 69, 0.4);
+}
+
+.delete-btn:hover {
+  background: rgba(237, 66, 69, 0.3);
+  transform: translateY(-1px);
+}
+
+.btn-icon {
+  font-size: 16px;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding-top: 12px;
+}
+
+.close-btn {
+  padding: 8px 16px;
+  background: rgba(114, 137, 218, 0.2);
+  color: #E6E6E6;
+  border: 1px solid rgba(114, 137, 218, 0.4);
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.close-btn:hover {
+  background: rgba(114, 137, 218, 0.3);
+  border-color: #7289da;
+}

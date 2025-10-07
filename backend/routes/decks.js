@@ -1,42 +1,70 @@
 const express = require('express');
 const router = express.Router();
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
 const { query } = require('../config/database');
+const { requireAdmin } = require('../middleware/auth');
 
-// Middleware to check admin permissions for deck management
-const requireAdmin = async (req, res, next) => {
-  try {
-    // For deck routes, check userId from query params or body
-    const userId = req.body.userId || req.query.userId;
-    
-    if (!userId) {
-      return res.status(401).json({ error: 'User ID required' });
+// Configure multer for file uploads
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const uploadPath = path.join(__dirname, '../uploads/deck-images');
+    // Ensure directory exists
+    if (!fs.existsSync(uploadPath)) {
+      fs.mkdirSync(uploadPath, { recursive: true });
     }
-    
-    const userResult = await query(
-      'SELECT is_admin, guild_roles FROM users WHERE discord_id = $1',
-      [userId]
-    );
-    
-    const user = userResult.rows[0];
-    if (!user) {
-      return res.status(404).json({ error: 'User not found' });
-    }
-    
-    // Check if user is admin
-    const isAdmin = user.is_admin || (user.guild_roles && user.guild_roles.includes('admin'));
-    
-    if (!isAdmin) {
-      return res.status(403).json({ error: 'Admin privileges required' });
-    }
-    
-    req.user = user;
-    req.userId = userId;
-    next();
-  } catch (error) {
-    console.error('Admin auth error:', error);
-    res.status(500).json({ error: 'Authentication failed' });
+    cb(null, uploadPath);
+  },
+  filename: (req, file, cb) => {
+    // Generate unique filename: timestamp-originalname
+    const uniqueName = `${Date.now()}-${file.originalname.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
+    cb(null, uniqueName);
   }
-};
+});
+
+const upload = multer({ 
+  storage: storage,
+  limits: {
+    fileSize: 5 * 1024 * 1024 // 5MB limit
+  },
+  fileFilter: (req, file, cb) => {
+    // Only allow image files
+    if (file.mimetype.startsWith('image/')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only image files are allowed'), false);
+    }
+  }
+});
+
+// Serve uploaded deck images
+router.get('/uploads/deck-images/:filename', (req, res) => {
+  const filename = req.params.filename;
+  const imagePath = path.join(__dirname, '../uploads/deck-images', filename);
+  
+  // Check if file exists
+  if (!fs.existsSync(imagePath)) {
+    return res.status(404).json({ error: 'Image not found' });
+  }
+  
+  // Set appropriate content type based on file extension
+  const ext = path.extname(filename).toLowerCase();
+  const contentTypes = {
+    '.jpg': 'image/jpeg',
+    '.jpeg': 'image/jpeg', 
+    '.png': 'image/png',
+    '.gif': 'image/gif',
+    '.webp': 'image/webp'
+  };
+  
+  const contentType = contentTypes[ext] || 'application/octet-stream';
+  res.setHeader('Content-Type', contentType);
+  res.setHeader('Cache-Control', 'public, max-age=86400'); // Cache for 24 hours
+  
+  // Send the file
+  res.sendFile(imagePath);
+});
 
 // Get all decks (public - used for duel submission)
 router.get('/', async (req, res) => {
@@ -63,9 +91,9 @@ router.get('/', async (req, res) => {
 });
 
 // Create new deck (admin only)
-router.post('/', requireAdmin, async (req, res) => {
+router.post('/', requireAdmin, upload.single('image'), async (req, res) => {
   try {
-    const { name, imageUrl, imageFilename } = req.body;
+    const { name } = req.body;
     
     if (!name) {
       return res.status(400).json({ error: 'Deck name is required' });
@@ -81,6 +109,15 @@ router.post('/', requireAdmin, async (req, res) => {
       return res.status(400).json({ error: 'Deck name already exists' });
     }
     
+    // Generate image URL if file was uploaded
+    let imageUrl = null;
+    let imageFilename = null;
+    
+    if (req.file) {
+      imageFilename = req.file.filename;
+      imageUrl = `/api/decks/uploads/deck-images/${req.file.filename}`;
+    }
+    
     const insertQuery = `
       INSERT INTO decks (name, image_url, image_filename, created_by)
       VALUES ($1, $2, $3, $4)
@@ -89,14 +126,14 @@ router.post('/', requireAdmin, async (req, res) => {
     
     const result = await query(insertQuery, [
       name,
-      imageUrl || null,
-      imageFilename || null,
-      req.userId
+      imageUrl,
+      imageFilename,
+      req.user.userId
     ]);
     
     const newDeck = result.rows[0];
     
-    console.log(`✅ Deck created: ${newDeck.name} by ${req.userId}`);
+    console.log(`✅ Deck created: ${newDeck.name} by ${req.user.username}${req.file ? ' with image' : ''}`);
     
     res.status(201).json({
       success: true,
@@ -106,6 +143,16 @@ router.post('/', requireAdmin, async (req, res) => {
     
   } catch (error) {
     console.error('Error creating deck:', error);
+    
+    // Clean up uploaded file if deck creation failed
+    if (req.file && fs.existsSync(req.file.path)) {
+      fs.unlinkSync(req.file.path);
+    }
+    
+    if (error.code === 'LIMIT_FILE_SIZE') {
+      return res.status(400).json({ error: 'File size too large (max 5MB)' });
+    }
+    
     res.status(500).json({ error: 'Failed to create deck' });
   }
 });
@@ -165,7 +212,7 @@ router.patch('/:deckId', requireAdmin, async (req, res) => {
     
     const updatedDeck = result.rows[0];
     
-    console.log(`✅ Deck updated: ${updatedDeck.name} by ${req.userId}`);
+    console.log(`✅ Deck updated: ${updatedDeck.name} by ${req.user.username}`);
     
     res.json({
       success: true,
@@ -211,7 +258,7 @@ router.delete('/:deckId', requireAdmin, async (req, res) => {
     // Delete the deck
     await query('DELETE FROM decks WHERE id = $1', [deckId]);
     
-    console.log(`🗑️ Deck deleted: ${deck.name} by ${req.userId}`);
+    console.log(`🗑️ Deck deleted: ${deck.name} by ${req.user.username}`);
     
     res.json({
       success: true,

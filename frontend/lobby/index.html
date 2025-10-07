@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Duelytics - Tournament Lobby</title>
+  
+  <!-- Global styles (background system) -->
+  <link rel="stylesheet" href="../shared/global.css">
+  
+  <!-- Lobby page styles -->
+  <link rel="stylesheet" href="./lobby.css">
+  <link rel="stylesheet" href="./sessions.css">
+  <link rel="stylesheet" href="./decks.css">
+  <link rel="stylesheet" href="./backgrounds.css">
+  <link rel="stylesheet" href="./create-session.css">
+  <link rel="stylesheet" href="./manage-sessions.css">
+</head>
+<body>
+  <div class="lobby-container">
+    <!-- Left Sidebar -->
+    <nav class="sidebar">
+      <div class="sidebar-header">
+        <h1>Duelytics</h1>
+        <p>Select a session to join</p>
+      </div>
+      
+      <div class="sidebar-divider"></div>
+      
+      <div class="menu-items">
+        <div class="menu-item active" data-tab="active-sessions">
+          Active Sessions
+        </div>
+        <div class="menu-item" data-tab="archived-sessions">
+          Archived Sessions
+        </div>
+        <div class="menu-item" data-tab="decks">
+          Decks
+        </div>
+        <div class="menu-item" data-tab="backgrounds">
+          Backgrounds
+        </div>
+        
+        <!-- Admin separator -->
+        <div class="admin-divider"></div>
+        
+        <div class="menu-item" data-tab="create-session">
+          Create New Session
+        </div>
+        <div class="menu-item" data-tab="manage-sessions">
+          Manage Sessions
+        </div>
+      </div>
+    </nav>
+    
+    <!-- Right content area -->
+    <div class="content-area">
+      <!-- Header for tabs -->
+      <header class="content-header">
+        <h2 id="page-title">Active Sessions</h2>
+      </header>
+      
+      <!-- Main content -->
+      <main class="main-content">
+        <!-- Active Sessions Tab -->
+        <div id="active-sessions" class="tab-content active">
+          <!-- Loading State -->
+          <div id="sessions-loading" class="loading-state">
+            <div class="loading-spinner"></div>
+            <span>Loading active sessions...</span>
+          </div>
+          
+          <!-- Error State -->
+          <div id="sessions-error" class="error-state" style="display: none;">
+            <div>
+              <span class="error-icon">⚠️</span>
+              <span id="error-message">Failed to load sessions</span>
+              <button id="retry-sessions" class="retry-btn">Retry</button>
+            </div>
+          </div>
+          
+          <!-- Session Selection (hidden initially) -->
+          <div id="session-selection" class="session-selection" style="display: none;">
+            <label>Select Session to Join (Times in UTC)</label>
+            <select id="sessionSelect" class="session-dropdown">
+              <option value="">Choose an active session...</option>
+            </select>
+            <button id="joinBtn" class="join-btn" disabled>Enter Session</button>
+          </div>
+        </div>
+        
+        <!-- Archived Sessions Tab -->
+        <div id="archived-sessions" class="tab-content">
+          <!-- Loading State -->
+          <div id="archived-loading" class="loading-state" style="display: none;">
+            <div class="loading-spinner"></div>
+            <span>Loading archived sessions...</span>
+          </div>
+          
+          <!-- Error State -->
+          <div id="archived-error" class="error-state" style="display: none;">
+            <div>
+              <span class="error-icon">⚠️</span>
+              <span id="archived-error-message">Failed to load archived sessions</span>
+              <button id="retry-archived" class="retry-btn">Retry</button>
+            </div>
+          </div>
+          
+          <!-- Session Selection (hidden initially) -->
+          <div id="archived-selection" class="session-selection" style="display: none;">
+            <label>Select Archived Session to View (Times in UTC)</label>
+            <select id="archivedSelect" class="session-dropdown">
+              <option value="">Choose an archived session...</option>
+            </select>
+            <button id="viewBtn" class="join-btn" disabled>View Session</button>
+          </div>
+        </div>
+        
+        <div id="decks" class="tab-content">
+          <!-- Admin: Add Deck Form -->
+          <div class="admin-section">
+            <div class="deck-form">
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Deck Name</label>
+                  <input type="text" id="deckName" class="form-input" placeholder="Blue-Eyes White Dragon, Red-Eyes Black Dragon..." />
+                </div>
+                <div class="form-group">
+                  <label>Deck Image</label>
+                  <input type="file" id="deckImage" class="file-input" accept="image/*" />
+                </div>
+              </div>
+              <button id="addDeckBtn" class="join-btn" disabled>Add Deck</button>
+            </div>
+          </div>
+          
+          <!-- Decks Display -->
+          <div class="decks-section">
+            <h3>Current Decks</h3>
+            <div class="decks-grid">
+              <!-- Decks will be loaded dynamically from the database -->
+            </div>
+          </div>
+        </div>
+        
+        <div id="backgrounds" class="tab-content">
+          <!-- Upload Background Form -->
+          <div class="admin-section">
+            <div class="background-form">
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Background Name</label>
+                  <input type="text" id="backgroundName" class="form-input" placeholder="Mystical Space Typhoon, Blue-Eyes White Dragon..." />
+                </div>
+                <div class="form-group">
+                  <label>Background Image</label>
+                  <input type="file" id="backgroundImage" class="file-input" accept="image/*" />
+                </div>
+              </div>
+              <button id="uploadBackgroundBtn" class="join-btn" disabled>Upload Background</button>
+            </div>
+          </div>
+          
+          <!-- Backgrounds Display -->
+          <div class="backgrounds-section">
+            <h3>Available Backgrounds</h3>
+            <div class="backgrounds-grid">
+              <!-- Backgrounds will be loaded dynamically from the database -->
+            </div>
+          </div>
+        </div>
+        
+        <div id="create-session" class="tab-content">
+          <!-- Create Session Form -->
+          <div class="admin-section">
+            <div class="session-form">
+              <!-- Session Name -->
+              <div class="form-group">
+                <label>Session Name</label>
+                <input type="text" id="sessionName" class="form-input" placeholder="Weekend Tournament, Spring Cup 2024..." />
+              </div>
+              
+              <!-- Session Type -->
+              <div class="form-group">
+                <label>Session Type</label>
+                <select id="sessionType" class="form-input session-dropdown">
+                  <option value="">Select session type...</option>
+                  <option value="ladder">Ladder Mode</option>
+                  <option value="rated">Rated Mode</option>
+                  <option value="duelist_cup">Duelist Cup</option>
+                </select>
+              </div>
+              
+              <!-- Start Date -->
+              <div class="form-group">
+                <label>Start Date & Time</label>
+                <div class="date-input-wrapper">
+                  <input type="datetime-local" id="startDate" class="form-input date-input" />
+                  <button type="button" class="calendar-btn" onclick="document.getElementById('startDate').showPicker()">
+                    📅
+                  </button>
+                </div>
+              </div>
+              
+              <!-- End Date -->
+              <div class="form-group">
+                <label>End Date & Time</label>
+                <div class="date-input-wrapper">
+                  <input type="datetime-local" id="endDate" class="form-input date-input" />
+                  <button type="button" class="calendar-btn" onclick="document.getElementById('endDate').showPicker()">
+                    📅
+                  </button>
+                </div>
+              </div>
+              
+              <!-- Create Button -->
+              <button id="createSessionBtn" class="join-btn" disabled>Create Session</button>
+            </div>
+          </div>
+        </div>
+        
+        <div id="manage-sessions" class="tab-content">
+          <!-- Manage Sessions Form -->
+          <div class="admin-section">
+            <div class="manage-form">
+              <div class="form-group">
+                <label>Select Session to Manage</label>
+            <select id="manageSessionSelect" class="form-input session-dropdown">
+              <option value="">Choose a session to manage...</option>
+            </select>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Session Management Modal (hidden by default) -->
+          <div id="sessionModal" class="session-modal" style="display: none;">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h3 id="modalSessionName">Session Name</h3>
+                <span id="sessionStatus" class="session-status-badge">Active</span>
+              </div>
+              
+              <div class="modal-body">
+                <div class="session-details">
+                  <div class="detail-row">
+                    <span class="detail-label">Type:</span>
+                    <span id="modalSessionType" class="detail-value">Ladder Mode</span>
+                  </div>
+                  <div class="detail-row">
+                    <span class="detail-label">Duration:</span>
+                    <span id="modalSessionDuration" class="detail-value">Ends in 22 days</span>
+                  </div>
+                  <div class="detail-row">
+                    <span class="detail-label">Players:</span>
+                    <span id="modalSessionPlayers" class="detail-value">2 active players</span>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="modal-actions">
+                <button id="archiveSessionBtn" class="action-btn archive-btn">
+                  <span class="btn-icon">📦</span>
+                  Archive Session
+                </button>
+                <button id="deleteSessionBtn" class="action-btn delete-btn">
+                  <span class="btn-icon">🗑️</span>
+                  Delete Session
+                </button>
+              </div>
+              
+              <div class="modal-footer">
+                <button id="closeModalBtn" class="close-btn">Close</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Background Loader (loads immediately) -->
+  <script src="../shared/background-loader.js"></script>
+  
+  <!-- API Service -->
+  <script type="module" src="../shared/api.js"></script>
+  
+  <!-- Core Lobby JavaScript -->
+  <script src="./lobby-core.js"></script>
+  
+  <!-- Tab-specific JavaScript -->
+  <script type="module" src="./sessions.js"></script>
+  <script type="module" src="./decks.js"></script>
+  <script type="module" src="./backgrounds.js"></script>
+  <script type="module" src="./create-session.js"></script>
+  <script type="module" src="./manage-sessions.js"></script>
+</body>
+</html>

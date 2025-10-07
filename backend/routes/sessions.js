@@ -2,12 +2,14 @@ const express = require('express');
 const router = express.Router();
 const { query } = require('../config/database');
 
-// Get all active sessions
+// Get sessions with optional status filter
 router.get('/', async (req, res) => {
   try {
+    const status = req.query.status || 'active';
+    
     const result = await query(
       'SELECT id, name, game_mode, status, admin_user_id, starts_at, ends_at FROM sessions WHERE status = $1 ORDER BY created_at DESC',
-      ['active']
+      [status]
     );
     
     res.json({

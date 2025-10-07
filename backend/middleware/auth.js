@@ -117,7 +117,7 @@ async function requireSessionAdminOrSystemAdmin(req, res, next) {
         });
       }
       
-      req.session = session;
+      req.sessionData = session;
       req.isSessionAdmin = isSessionAdmin;
       req.isSystemAdmin = isSystemAdmin;
       

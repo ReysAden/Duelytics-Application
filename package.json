@@ -2,10 +2,14 @@
   "name": "duelytics-application",
   "version": "1.0.0",
   "description": "Masterduelytics.com Application",
-  "main": "index.js",
+  "main": "frontend/electron/main.js",
   "scripts": {
     "start": "node backend/server.js",
     "dev": "node backend/server.js",
+    "electron": "electron .",
+    "electron-dev": "set NODE_ENV=development && electron .",
+    "build": "vite build",
+    "dist": "npm run build && electron-builder",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -25,16 +29,25 @@
     "bull": "^4.16.5",
     "cors": "^2.8.5",
     "dotenv": "^17.2.2",
-    "electron": "^38.2.0",
     "express": "^5.1.0",
     "express-session": "^1.18.2",
     "jsonwebtoken": "^9.0.2",
+    "multer": "^2.0.2",
     "passport": "^0.7.0",
     "passport-discord-auth": "^1.2.0",
     "pg": "^8.16.3",
+    "pinia": "^3.0.3",
     "redis": "^5.8.2",
     "socket.io": "^4.8.1",
     "socket.io-client": "^4.8.1",
-    "vue": "^3.5.22"
+    "vite": "^7.1.7",
+    "vue": "^3.5.22",
+    "vue-router": "^4.5.1"
+  },
+  "devDependencies": {
+    "@types/node": "^24.6.0",
+    "@vitejs/plugin-vue": "^6.0.1",
+    "electron": "^38.2.0",
+    "electron-builder": "^26.0.12"
   }
 }

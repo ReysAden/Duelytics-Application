@@ -16,6 +16,7 @@ const duelRoutes = require('./routes/duels');
 const sessionRoutes = require('./routes/sessions');
 const adminRoutes = require('./routes/admin');
 const deckRoutes = require('./routes/decks');
+const backgroundRoutes = require('./routes/backgrounds');
 const { router: authRoutes } = require('./routes/auth');
 
 // Initialize Discord OAuth strategy
@@ -56,6 +57,7 @@ app.use('/api/duels', duelRoutes);
 app.use('/api/sessions', sessionRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/decks', deckRoutes);
+app.use('/api/backgrounds', backgroundRoutes);
 app.use('/auth', authRoutes);
 
 // Health check - simple way to verify server is running

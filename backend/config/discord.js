@@ -1,4 +1,4 @@
-require('dotenv').config({ path: './backend/.env' });
+require('dotenv').config({ path: './.env' });
 const passport = require('passport');
 const { Strategy: DiscordStrategy } = require('passport-discord-auth');
 const jwt = require('jsonwebtoken');

@@ -3,6 +3,8 @@ const passport = require('passport');
 const router = express.Router();
 const { generateJWT, verifyJWT } = require('../config/discord');
 const { query } = require('../config/database');
+const fs = require('fs');
+const path = require('path');
 
 // Initialize Discord OAuth strategy
 require('../config/discord');
@@ -18,20 +20,42 @@ router.get('/discord/callback',
       // Generate JWT token for the authenticated user
       const token = generateJWT(req.user);
       
-      // In a production app, you might want to redirect to your frontend with the token
-      // For now, we'll return the token as JSON for testing
-      res.json({
-        success: true,
-        message: 'Authentication successful',
-        token: token,
-        user: {
-          id: req.user.discord_id,
-          username: req.user.username,
-          avatar: req.user.avatar,
-          isAdmin: req.user.is_admin,
-          isSupporter: req.user.is_supporter
-        }
-      });
+      // Write token to temp file for Electron to read
+      const projectRoot = path.resolve(__dirname, '../..');
+      const tempDir = path.join(projectRoot, 'temp');
+      if (!fs.existsSync(tempDir)) {
+        fs.mkdirSync(tempDir, { recursive: true });
+      }
+      const tokenPath = path.join(tempDir, 'auth_token.txt');
+      fs.writeFileSync(tokenPath, token);
+      console.log(`🔑 Token saved to: ${tokenPath}`);
+      
+      // Create simple success page
+      const redirectHTML = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <title>Login Successful</title>
+          <style>
+            body { font-family: Arial, sans-serif; background: #2f3136; color: white; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+            .success { text-align: center; background: #36393f; padding: 40px; border-radius: 8px; border: 2px solid #7289da; }
+            h1 { color: #7289da; margin-bottom: 20px; }
+          </style>
+        </head>
+        <body>
+          <div class="success">
+            <h1>✅ Login Successful!</h1>
+            <p>You can now return to the Duelytics app.</p>
+            <p><small>This window can be closed.</small></p>
+          </div>
+          <script>
+            console.log('Login successful - token saved for Electron app');
+          </script>
+        </body>
+        </html>
+      `;
+      
+      res.send(redirectHTML);
       
       console.log(`🎉 User ${req.user.username} successfully authenticated with JWT token`);
       

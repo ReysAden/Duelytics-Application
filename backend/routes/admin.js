@@ -79,16 +79,54 @@ router.patch('/sessions/:sessionId/archive', requireSessionAdminOrSystemAdmin, a
       ['archived', sessionId]
     );
     
-    console.log(`📦 Session archived: ${req.session.name} by ${req.user.username}`);
+    console.log(`📦 Session archived: ${req.sessionData.name} by ${req.user.username}`);
     
     res.json({
       success: true,
-      message: `Session "${req.session.name}" archived successfully`
+      message: `Session "${req.sessionData.name}" archived successfully`
     });
     
   } catch (error) {
     console.error('Error archiving session:', error);
     res.status(500).json({ error: 'Failed to archive session' });
+  }
+});
+
+// Delete session (admin only)
+router.delete('/sessions/:sessionId', requireSessionAdminOrSystemAdmin, async (req, res) => {
+  try {
+    const { sessionId } = req.params;
+    
+    // Check if session exists and get name for logging
+    const sessionCheck = await query(
+      'SELECT name FROM sessions WHERE id = $1',
+      [sessionId]
+    );
+    
+    if (sessionCheck.rows.length === 0) {
+      return res.status(404).json({ error: 'Session not found' });
+    }
+    
+    const sessionName = sessionCheck.rows[0].name;
+    
+    // Delete all related data first (foreign key constraints)
+    await query('DELETE FROM player_session_stats WHERE session_id = $1', [sessionId]);
+    await query('DELETE FROM session_participants WHERE session_id = $1', [sessionId]);
+    await query('DELETE FROM duels WHERE session_id = $1', [sessionId]);
+    
+    // Finally delete the session
+    await query('DELETE FROM sessions WHERE id = $1', [sessionId]);
+    
+    console.log(`🗑️ Session deleted: ${sessionName} by ${req.user.username}`);
+    
+    res.json({
+      success: true,
+      message: `Session "${sessionName}" deleted successfully`
+    });
+    
+  } catch (error) {
+    console.error('Error deleting session:', error);
+    res.status(500).json({ error: 'Failed to delete session' });
   }
 });
 
