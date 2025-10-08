@@ -19,6 +19,32 @@ function getAuthToken() {
   return localStorage.getItem('duelytics_token');
 }
 
+// Decode JWT token to extract user data
+function decodeJWT(token) {
+  if (!token) return null;
+  
+  try {
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(
+      atob(base64)
+        .split('')
+        .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+        .join('')
+    );
+    return JSON.parse(jsonPayload);
+  } catch (error) {
+    console.error('Failed to decode JWT:', error);
+    return null;
+  }
+}
+
+// Get current user info from JWT token
+function getCurrentUser() {
+  const token = getAuthToken();
+  return decodeJWT(token);
+}
+
 // Generic API request handler with error handling
 async function apiRequest(endpoint, options = {}) {
   const url = `${API_BASE_URL}${endpoint}`;
@@ -202,4 +228,4 @@ export const healthApi = {
   }
 };
 
-export { ApiError };
+export { ApiError, getCurrentUser };

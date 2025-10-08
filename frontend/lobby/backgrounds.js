@@ -3,11 +3,35 @@
  * Handles background upload and selection for supporters
  */
 
-import { backgroundsApi, ApiError } from '../shared/api.js';
+import { backgroundsApi, ApiError, getCurrentUser } from '../shared/api.js';
 
 // Check if user is supporter (can access backgrounds)
 let isSupporter = false;
 let currentUser = null;
+
+// Initialize user data from JWT token
+function initializeUserData() {
+  const token = localStorage.getItem('duelytics_token');
+  console.log('🔍 Raw token from localStorage:', token?.substring(0, 50) + '...');
+  
+  currentUser = getCurrentUser();
+  if (currentUser) {
+    isSupporter = currentUser.isSupporter || false;
+    console.log('🔍 Full JWT payload:', currentUser);
+    console.log('🔍 Backgrounds: User role check:', {
+      username: currentUser.username,
+      isAdmin: currentUser.isAdmin,
+      isSupporter: currentUser.isSupporter
+    });
+    
+    // Update tab visibility based on supporter status
+    const backgroundsTab = document.querySelector('[data-tab="backgrounds"]');
+    if (backgroundsTab) {
+      backgroundsTab.style.display = isSupporter ? 'block' : 'none';
+      console.log('🔍 Backgrounds tab visibility:', isSupporter ? 'shown' : 'hidden');
+    }
+  }
+}
 
 // Load user's backgrounds from backend
 async function loadBackgrounds() {
@@ -389,27 +413,13 @@ async function updateGlobalBackground() {
 // Check user role and initialize
 async function initializeBackgrounds() {
   try {
-    // Get current user info to check role
-    const token = localStorage.getItem('duelytics_token')
-    if (token) {
-      // Simple JWT decode to check role (unsafe for production but fine for our use)
-      const payload = JSON.parse(atob(token.split('.')[1]))
-      isSupporter = payload.isSupporter || false
-      currentUser = payload
-    }
-    
-    const backgroundsTab = document.querySelector('[data-tab="backgrounds"]')
-    
-    if (!isSupporter) {
-      // Hide backgrounds tab for non-supporters
-      if (backgroundsTab) {
-        backgroundsTab.style.display = 'none'
-      }
-      return
-    }
+    // Initialize user data from JWT token
+    initializeUserData();
     
     // Load backgrounds and update global background for supporters
-    await updateGlobalBackground()
+    if (isSupporter) {
+      await updateGlobalBackground();
+    }
     
   } catch (error) {
     console.error('Failed to initialize backgrounds:', error)
@@ -419,8 +429,12 @@ async function initializeBackgrounds() {
 // Tab change event listener - load backgrounds when backgrounds tab is opened
 document.addEventListener('tabChanged', (event) => {
   const { tab } = event.detail
-  if (tab === 'backgrounds' && isSupporter) {
-    loadBackgrounds()
+  if (tab === 'backgrounds') {
+    // Initialize user data first to check supporter status
+    initializeUserData();
+    if (isSupporter) {
+      loadBackgrounds()
+    }
   }
 })
 

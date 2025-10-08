@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Duelytics - Session</title>
+  
+  <!-- Global styles (background system) -->
+  <link rel="stylesheet" href="../shared/global.css">
+  
+  <!-- Duel page styles -->
+  <link rel="stylesheet" href="./duel.css">
+</head>
+<body>
+  <div class="duel-container">
+    <!-- Left Sidebar -->
+    <nav class="sidebar">
+      <div class="sidebar-header">
+        <h1>Duelytics</h1>
+        <p id="session-name">Loading session...</p>
+      </div>
+      
+      <div class="sidebar-divider"></div>
+      
+      <!-- User Stats Section -->
+      <div class="user-stats">
+        <div id="user-rank" class="stat-display">
+          <!-- For ladder: shows rank -->
+          <!-- For rated/duelist_cup: shows points -->
+        </div>
+        <div id="user-record" class="stat-display">
+          <!-- Shows wins/losses -->
+        </div>
+      </div>
+      
+      <div class="sidebar-divider"></div>
+      
+      <div class="menu-items">
+        <div class="menu-item active" data-tab="submit">
+          Submit
+        </div>
+        <div class="menu-item" data-tab="personal-stats">
+          Personal Stats
+        </div>
+        <div class="menu-item" data-tab="deck-winrates">
+          Deck Winrates
+        </div>
+        <div class="menu-item" data-tab="matchup-matrix">
+          Matchup Matrix
+        </div>
+        <div class="menu-item" data-tab="duel-history">
+          Duel History
+        </div>
+        <div class="menu-item" data-tab="leaderboard">
+          Leaderboard
+        </div>
+      </div>
+      
+      <div class="sidebar-footer">
+        <button id="back-btn" class="back-button">← Back to Lobby</button>
+      </div>
+    </nav>
+    
+    <!-- Right content area -->
+    <div class="content-area">
+      <!-- Header for tabs -->
+      <header class="content-header">
+        <h2 id="page-title">Submit Duel</h2>
+      </header>
+      
+      <!-- Main content -->
+      <main class="main-content">
+        <!-- Submit Tab -->
+        <div id="submit" class="tab-content active">
+          <form id="duelForm" class="duel-form">
+            <!-- Deck Selection Row -->
+            <div class="form-row">
+              <div class="form-group half">
+                <label class="form-label">Your Deck *</label>
+                <div class="searchable-dropdown" id="playerDeckDropdown">
+                  <input type="text" id="playerDeckInput" class="dropdown-input" placeholder="Search your deck..." readonly>
+                  <div class="dropdown-arrow">▼</div>
+                  <div class="dropdown-list" id="playerDeckList"></div>
+                </div>
+              </div>
+              <div class="form-group half">
+                <label class="form-label">Opponent's Deck *</label>
+                <div class="searchable-dropdown" id="opponentDeckDropdown">
+                  <input type="text" id="opponentDeckInput" class="dropdown-input" placeholder="Search opponent deck..." readonly>
+                  <div class="dropdown-arrow">▼</div>
+                  <div class="dropdown-list" id="opponentDeckList"></div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Game Details Row -->
+            <div class="form-row">
+              <div class="form-group half">
+                <label class="form-label">Coin Flip *</label>
+                <div class="radio-group">
+                  <label class="radio-option">
+                    <input type="radio" name="coinFlip" value="won">
+                    <span class="radio-text">🪙 Won</span>
+                  </label>
+                  <label class="radio-option">
+                    <input type="radio" name="coinFlip" value="lost">
+                    <span class="radio-text">○ Lost</span>
+                  </label>
+                </div>
+              </div>
+              <div class="form-group half">
+                <label class="form-label">Turn Order *</label>
+                <div class="radio-group">
+                  <label class="radio-option">
+                    <input type="radio" name="turnOrder" value="first">
+                    <span class="radio-text">🥇 First</span>
+                  </label>
+                  <label class="radio-option">
+                    <input type="radio" name="turnOrder" value="second">
+                    <span class="radio-text">🥈 Second</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Match Result -->
+            <div class="form-group">
+              <label class="form-label">Match Result *</label>
+              <div class="result-buttons">
+                <button type="button" id="winBtn" class="result-btn win-btn">Win</button>
+                <button type="button" id="lossBtn" class="result-btn loss-btn">Loss</button>
+              </div>
+            </div>
+            
+            <!-- Rating/Points Change (conditional) -->
+            <div class="form-group" id="ratingChangeGroup" style="display: none;">
+              <label class="form-label" id="ratingChangeLabel">Rating Change</label>
+              <input type="number" id="ratingChangeInput" class="form-input" step="0.1" placeholder="7.5">
+              <small class="form-help" id="ratingChangeHelp">Enter rating points gained/lost (e.g. 7.5)</small>
+            </div>
+            
+            <!-- Submit Button -->
+            <button type="submit" id="submitDuelBtn" class="submit-btn" disabled>
+              Submit
+            </button>
+          </form>
+        </div>
+        
+        <!-- Personal Stats Tab -->
+        <div id="personal-stats" class="tab-content">
+          <h3>📊 Your Performance</h3>
+          <p>Personal statistics will be shown here...</p>
+        </div>
+        
+        <!-- Deck Winrates Tab -->
+        <div id="deck-winrates" class="tab-content">
+          <h3>🃏 Deck Performance</h3>
+          <p>Deck win rates across the session will be displayed here...</p>
+        </div>
+        
+        <!-- Matchup Matrix Tab -->
+        <div id="matchup-matrix" class="tab-content">
+          <h3>⚔️ Matchup Analysis</h3>
+          <p>Deck vs deck matchup matrix will be shown here...</p>
+        </div>
+        
+        <!-- Duel History Tab -->
+        <div id="duel-history" class="tab-content">
+          <h3>📋 Recent Duels</h3>
+          <p>Your duel history will be listed here...</p>
+        </div>
+        
+        <!-- Leaderboard Tab -->
+        <div id="leaderboard" class="tab-content">
+          <h3>🏆 Session Rankings</h3>
+          <p>Current leaderboard will be displayed here...</p>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Background Loader (loads immediately) -->
+  <script src="../shared/background-loader.js"></script>
+  
+  <!-- Core Duel JavaScript -->
+  <script src="./duel-core.js"></script>
+  
+  <!-- Duel Submission Form JavaScript -->
+  <script src="./duel-submission.js"></script>
+</body>
+</html>

@@ -18,8 +18,7 @@ const gameModeHandlers = {
         SET 
           total_games = total_games + 1,
           total_wins = total_wins + $3,
-          total_losses = total_losses + $4,
-          current_net_wins = current_net_wins + $5,
+          current_net_wins = current_net_wins + $4,
           last_updated = CURRENT_TIMESTAMP
         WHERE session_id = $1 AND user_id = $2
       `;
@@ -28,7 +27,6 @@ const gameModeHandlers = {
         sessionId, 
         userId,
         result === 'win' ? 1 : 0,  // wins
-        result === 'loss' ? 1 : 0, // losses  
         netWinChange               // net wins change
       ]);
     }
@@ -47,8 +45,7 @@ const gameModeHandlers = {
         SET 
           total_games = total_games + 1,
           total_wins = total_wins + $3,
-          total_losses = total_losses + $4,
-          current_points = current_points + $5,
+          current_points = current_points + $4,
           last_updated = CURRENT_TIMESTAMP
         WHERE session_id = $1 AND user_id = $2
       `;
@@ -57,7 +54,6 @@ const gameModeHandlers = {
         sessionId,
         userId,
         result === 'win' ? 1 : 0,
-        result === 'loss' ? 1 : 0,
         pointChange
       ]);
     }
@@ -86,8 +82,7 @@ const gameModeHandlers = {
         SET 
           total_games = total_games + 1,
           total_wins = total_wins + $3,
-          total_losses = total_losses + $4,
-          current_points = GREATEST(0, current_points + $5), -- Floor at 0
+          current_points = GREATEST(0, current_points + $4), -- Floor at 0
           last_updated = CURRENT_TIMESTAMP
         WHERE session_id = $1 AND user_id = $2
       `;
@@ -96,7 +91,6 @@ const gameModeHandlers = {
         sessionId,
         userId,
         result === 'win' ? 1 : 0,
-        result === 'loss' ? 1 : 0,
         pointChange
       ]);
     }

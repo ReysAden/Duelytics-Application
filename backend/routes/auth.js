@@ -18,6 +18,12 @@ router.get('/discord/callback',
   async (req, res) => {
     try {
       // Generate JWT token for the authenticated user
+      console.log('🔍 JWT Debug - req.user data:', {
+        discord_id: req.user.discord_id,
+        username: req.user.username,
+        is_admin: req.user.is_admin,
+        is_supporter: req.user.is_supporter
+      });
       const token = generateJWT(req.user);
       
       // Write token to temp file for Electron to read
